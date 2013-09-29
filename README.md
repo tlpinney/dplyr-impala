@@ -83,14 +83,96 @@ http://gdeltblog.wordpress.com/2013/08/29/subsetting-and-aggregating-gdelt-using
     conn <- dbConnect(drv, "jdbc:hive2://localhost:21050/;auth=noSasl")
     dbListTables(conn)
 
+    syria.map <- qmap(location = "syria", maptype = "terrain", color = "bw", zoom = 7)
 
     syria <- dbGetQuery(conn, "SELECT ActionGeo_FullName, ActionGeo_long, ActionGeo_Lat, count(*) as qcount  FROM gdelt WHERE ActionGeo_CountryCode = 'SY' GROUP BY ActionGeo_FullName, ActionGeo_Lat, ActionGeo_Long")
 
+    
 
     syria.map + geom_point(data = syria, aes(x = actiongeo_long, y = actiongeo_lat, size = log(qcount)), color = "red", alpha = 0.6)
 
 
 ![syria_impala](syria_impala.png)
+
+
+
+For fun query the density of all of the GDELT for the whole world. Need to do 
+manual steps here because there is a bug somewhere in the driver when running it from within R, need to investigate more. Query only takes 32 seconds.
+
+    ubuntu$ impala-shell -i localhost -f query.sql --print_header -B > foo.tsv
+
+    Starting Impala Shell in unsecure mode
+    Connected to localhost:21000
+    Server version: impalad version 1.1.1 RELEASE (build 83d5868f005966883a918a819a449f636a5b3d5f)
+    Query: select ActionGeo_FullName,
+           ActionGeo_long,
+           ActionGeo_Lat,
+           count(*) as qcount
+    FROM gdelt
+    GROUP BY ActionGeo_FullName,
+             ActionGeo_Lat,
+             ActionGeo_Long
+    Query finished, fetching results ...
+
+
+    Returned 611179 row(s) in 32.65s
+
+
+Remove the place name column 
+
+    cut -f2- foo.tsv > foo2.tsv
+
+
+Copy to local machine
+
+         
+    # foo2 <- read.delim("~/project/funnelcloud/clouds/gdelt/foo2.tsv",stringsAsFactors=F)
+
+    foo2 <- read.delim("~/project/funnelcloud/clouds/gdelt/foo2.tsv",colClasses=c("numeric","numeric","numeric"), na.string='NULL')
+
+    # remove stray nulls
+    foo2 <- na.omit(foo2)
+
+    
+    # Null Island comes up many times, removing so it doesn't skew rendering
+  
+    foo2[foo2$qcount==5741734,]
+           actiongeo_long actiongeo_lat  qcount 
+    313249              0             0 5741734
+
+    foo2 <- foo2[foo2$qcount != 5741734,]
+
+    # What location is this ?
+
+    foo2[foo2$qcount == 5580651,]
+
+           actiongeo_long actiongeo_lat  qcount
+    596413            -97            38 5580651
+    
+    # removing...
+
+    foo2 <- foo2[foo2$qcount != 5580651,]
+
+    ggplot(foo2, aes(x=qcount)) + geom_histogram(binwidth=0.1) + scale_x_log10()
+    
+![hist_of_counts](hist_of_counts.png)
+    
+
+    require(ggplot2)
+    require(maps)
+    world <- map_data("world")
+    p <- ggplot() + coord_fixed()
+    base <- p + geom_polygon(data=world, aes(x=long, y=lat, group=group))
+    base +  geom_point(data = foo2, aes(x = actiongeo_long, y = actiongeo_lat, size = log(qcount)), color = "red", alpha = 0.1)
+
+    # Needs work, but you can adjust from here
+
+![world_gdelt](world_delt.png)
+
+    
+
+
+
 
 
 
