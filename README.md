@@ -69,6 +69,31 @@ Run RStudio and install RJDBC
     0.015   0.005   8.819 
 
 
+## ggplot2 and ggmap
+
+Some modifications from this example 
+
+http://gdeltblog.wordpress.com/2013/08/29/subsetting-and-aggregating-gdelt-using-dplyr-and-sqlite/
+
+    library(ggplot2)
+    library(ggmap)
+    library(RJDBC)
+
+    drv <- JDBC("org.apache.hive.jdbc.HiveDriver", "/opt/jars/impala-jdbc-0.0.1.jar","'")
+    conn <- dbConnect(drv, "jdbc:hive2://localhost:21050/;auth=noSasl")
+    dbListTables(conn)
+
+
+    syria <- dbGetQuery(conn, "SELECT ActionGeo_FullName, ActionGeo_long, ActionGeo_Lat, count(*) as qcount  FROM gdelt WHERE ActionGeo_CountryCode = 'SY' GROUP BY ActionGeo_FullName, ActionGeo_Lat, ActionGeo_Long")
+
+
+    syria.map + geom_point(data = syria, aes(x = actiongeo_long, y = actiongeo_lat, size = log(qcount)), color = "red", alpha = 0.6)
+
+
+![syria_impala](syria_impala.png)
+
+
+
 
 ## TODO
 
