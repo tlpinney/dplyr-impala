@@ -40,10 +40,15 @@ Forward socket connection to impala
 Run RStudio and install RJDBC
 
 `install.packages("RJDBC")`
+
 `library(RJDBC)`
+
 `drv <- JDBC("org.apache.hive.jdbc.HiveDriver", "/opt/jars/impala-jdbc-0.0.1.jar","'")`
+
 `conn <- dbConnect(drv, "jdbc:hive2://localhost:21050/;auth=noSasl")`
+
 `dbListTables(conn)`
+
 `dbGetQuery(conn, "select year, count(year) from gdelt group by year order by count(year) desc limit 10")`
 
     year count(year)
