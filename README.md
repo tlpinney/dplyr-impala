@@ -167,7 +167,7 @@ Copy to local machine
 
     # Needs work, but you can adjust from here
 
-![world_gdelt](world_delt.png)
+![world_gdelt](world_gdelt.png)
 
     
 
