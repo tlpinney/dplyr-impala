@@ -1,8 +1,9 @@
 # dplyr-impala 
 
-Experimental code to integrate dplyr with impala 
+Experimental code to eventually integrate dplyr with impala 
 
-
+dplyr: https://github.com/hadley/dplyr
+impala: http://www.cloudera.com/content/cloudera/en/products/cdh/impala.html
 
 
 ## Installation 
@@ -96,8 +97,8 @@ http://gdeltblog.wordpress.com/2013/08/29/subsetting-and-aggregating-gdelt-using
 
 
 
-For fun query the density of all of the GDELT for the whole world. Need to do 
-manual steps here because there is a bug somewhere in the driver when running it from within R, need to investigate more. Query only takes 32 seconds.
+For fun query the density of all the Action Geos of GDELT in the whole dataset. This needs to be a 
+manual step because there is a bug  in the driver when running it from within R. Query only takes 32 seconds.
 
     ubuntu$ impala-shell -i localhost -f query.sql --print_header -B > foo.tsv
 
