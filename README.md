@@ -3,6 +3,7 @@
 Experimental code to eventually integrate dplyr with impala 
 
 dplyr: https://github.com/hadley/dplyr
+
 impala: http://www.cloudera.com/content/cloudera/en/products/cdh/impala.html
 
 
